@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>Konek Telegram · Rakit Agent pake Hermes</title>
+<meta name="description" content="Cara konek Hermes Agent ke Telegram: BotFather, allowlist, pairing, gateway service.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="../assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="../"><span class="n">00</span>Home</a><a href="../setup/"><span class="n">01</span>Install & setup</a><a href="../soul/"><span class="n">02</span>SOUL.md</a><a href="../skills/"><span class="n">03</span>SKILL.md</a><a href="../memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="../boundaries/"><span class="n">05</span>Boundaries</a><a href="../secrets/"><span class="n">06</span>Rahasia & credential</a><a href="../telegram/"><span class="n">07</span>Konek Telegram</a><a href="../x/"><span class="n">08</span>Konek X / Twitter</a><a href="../checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main><div class="doc">
+<div class="kicker">step 07</div>
+<h1>Konek ke Telegram</h1>
+<p class="lead">Agent yang sama (SOUL, skill, memory) jadi bot di HP lo. Bisa voice note, gambar, dokumen. Yang penting: siapa yang boleh ngobrol harus lo kunci.</p>
+
+<ol class="steps">
+<li><h3>Bikin bot di @BotFather</h3>
+<p>Buka Telegram, cari <strong>@BotFather</strong>, kirim <code>/newbot</code>. Dia nanya display name (bebas) dan username (harus unik, akhiran <code>bot</code>, misal <code>bima_hermes_bot</code>). Lo dapet token kayak <code>7123456789:AAH1bGci...</code>. Itu rahasia.</p></li>
+<li><h3>Cari user ID lo</h3>
+<p>Chat <strong>@userinfobot</strong>, dia balikin ID numerik lo (misal <code>123456789</code>). Ini yang masuk allowlist, bukan username.</p></li>
+<li><h3>Taruh di .env</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/.env</span></div><pre>TELEGRAM_BOT_TOKEN=7123456789:AAH1bGci...
+TELEGRAM_ALLOWED_USERS=123456789        <span class="c"># koma buat banyak: 123,456</span></pre></div>
+<p>Atau pake wizard, yang nulis ke .env buat lo:</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes gateway setup</pre></div>
+<p>Di Hermes Desktop / dashboard ada juga tombol <em>Create with QR</em>: scan, bot kebuat, user ID kedeteksi, .env keisi, gateway restart. Kalau lo bikin konten, jalur manual lebih enak dijelasin.</p></li>
+<li><h3>Jalanin gateway</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes gateway              <span class="c"># foreground, enak buat liat log pas pertama</span>
+<span class="p">$ </span>hermes gateway install      <span class="c"># jadi user service (systemd / launchd)</span>
+<span class="p">$ </span>hermes gateway start
+<span class="p">$ </span>hermes gateway status
+<span class="p">$ </span>hermes gateway stop</pre></div>
+<p>DM bot lo. Kalau dibales, jadi.</p></li>
+</ol>
+
+<h2>Kunci akses: allowlist & pairing</h2>
+<p>Cuma dua hal yang nentuin bot jawab atau nggak: user ID di allowlist, atau pairing code yang lo approve. Gak ada allowlist = <strong>deny-all</strong>. Ada <code>TELEGRAM_ALLOW_ALL_USERS</code> tapi itu dev-only, karena bot ini punya akses shell.</p>
+<h3>Pairing (buat nambah orang tanpa restart)</h3>
+<ol>
+<li>Temen DM bot. Karena gak di allowlist, bot bales: <code>🔐 Pairing code: XKGH5N7P</code></li>
+<li>Temen kirim kode itu ke lo (Slack, WA, apapun).</li>
+<li>Lo approve di server:</li>
+</ol>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes pairing approve telegram XKGH5N7P</pre></div>
+<p>Langsung masuk, gak perlu restart. Kode expire 1 jam, maks 3 kode pending per platform, 1 request per user per 10 menit, 5x gagal approve = lockout 1 jam. File pairing di disk <code>chmod 0600</code>.</p>
+
+<h2>Grup & topic</h2>
+<p>Default-nya bot cuma jawab DM dari allowlist. Buat grup, set di config gateway:</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/config.yaml</span></div><pre><span class="k">gateway:</span>
+  platforms:
+    telegram:
+      extra:
+        group_allow_from:          <span class="c"># user yang boleh nge-trigger di grup</span>
+          - "123456789"
+        group_allowed_chats:       <span class="c"># grup mana aja</span>
+          - "-1001234567890"</pre></div>
+
+<h2>Boundaries khusus bot Telegram</h2>
+<p>Bot ini jalan unattended, lo gak selalu liat layarnya. Jadi:</p>
+<ul class="check">
+<li><code>TELEGRAM_ALLOWED_USERS</code> cuma ID lo (dan orang yang lo percaya).</li>
+<li><code>approvals.unattended_mode: deny</code> (default) biar command berbahaya ditolak, bukan nunggu.</li>
+<li>Matiin skill coding/devops di Telegram lewat <code>hermes skills</code>.</li>
+<li>Pertimbangin <code>terminal.backend: docker</code> atau matiin toolset terminal.</li>
+<li><code>memory.write_approval: true</code>: lo review memory sebelum nempel.</li>
+<li>Gateway di VM terpisah kalau bot-nya dipake orang lain.</li>
+<li>Cek <code>~/.hermes/logs/gateway.log</code> berkala.</li>
+</ul>
+<div class="note tip"><p>Sesi Telegram nyambung terus, jadi memory snapshot-nya gak ke-refresh. Kalau mau dia "inget" hal baru, kirim <code>/new</code> di chat buat mulai sesi baru.</p></div>
+
+<h2>Platform lain</h2>
+<p>Wizard yang sama (<code>hermes gateway setup</code>) ngedukung Discord, Slack, WhatsApp, Signal, Email, Microsoft Teams, Home Assistant (plugin). Polanya sama: token di .env, allowlist user, gateway jalan.</p>
+<div class="pager"><a href="../secrets/"><span>← sebelumnya</span>06 Rahasia & credential</a><a class="next" href="../x/"><span>selanjutnya →</span>08 Konek X / Twitter</a></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="../assets/main.js"></script>
+</body>
+</html>

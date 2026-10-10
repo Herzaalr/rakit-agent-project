@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>Checklist final · Rakit Agent pake Hermes</title>
+<meta name="description" content="Checklist lengkap sebelum agent Hermes lo dianggap jadi: fondasi, SOUL, skill, boundaries, rahasia, koneksi.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="../assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="../"><span class="n">00</span>Home</a><a href="../setup/"><span class="n">01</span>Install & setup</a><a href="../soul/"><span class="n">02</span>SOUL.md</a><a href="../skills/"><span class="n">03</span>SKILL.md</a><a href="../memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="../boundaries/"><span class="n">05</span>Boundaries</a><a href="../secrets/"><span class="n">06</span>Rahasia & credential</a><a href="../telegram/"><span class="n">07</span>Konek Telegram</a><a href="../x/"><span class="n">08</span>Konek X / Twitter</a><a href="../checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main><div class="doc">
+<div class="kicker">step 09</div>
+<h1>Checklist final</h1>
+<p class="lead">Semua yang harus udah beres sebelum lo bilang "agent gw jadi". Cocok buat slide penutup konten.</p>
+
+<h2>Fondasi</h2>
+<ul class="check">
+<li>Hermes kepasang, <code>hermes chat -q "halo"</code> dibales.</li>
+<li>Model & provider keset (<code>hermes model</code>), API key-nya di <code>.env</code>.</li>
+<li><code>chmod 600 ~/.hermes/.env</code>.</li>
+<li>Kalau beberapa agent: tiap peran punya profile sendiri.</li>
+</ul>
+
+<h2>Kepribadian & pengetahuan</h2>
+<ul class="check">
+<li><code>~/.hermes/SOUL.md</code> ditulis: Identity / Style / Avoid / Defaults. Gak ada detail project di sini.</li>
+<li>Cek <code>/context</code>: SOUL kebaca, gak ada ⚠.</li>
+<li>Minimal satu SKILL.md buatan sendiri, ditest pake <code>/nama-skill</code>.</li>
+<li>Skill dari luar udah di-<code>inspect</code> dan <code>hermes skills audit</code> bersih.</li>
+<li>AGENTS.md ada di tiap project yang dia kerjain.</li>
+<li>Memory nyala, <code>write_approval</code> dipertimbangin buat bot unattended.</li>
+</ul>
+
+<h2>Boundaries</h2>
+<ul class="check">
+<li><code>approvals.mode</code> keset sadar (smart/manual), <strong>bukan</strong> off di laptop utama.</li>
+<li><code>cron_mode</code>, <code>single_query_mode</code>, <code>unattended_mode</code> = deny.</li>
+<li><code>approvals.deny</code> keisi minimal: force-push, rm -rf ~, pipe-to-shell, baca .env.</li>
+<li><code>HERMES_WRITE_SAFE_ROOT</code> ke folder kerja.</li>
+<li>Tool yang gak perlu dimatiin (<code>hermes tools</code>), skill dipilah per platform (<code>hermes skills</code>).</li>
+<li>Bot always-on jalan di docker/ssh backend, bukan di host langsung.</li>
+<li>Gak ada <code>--yolo</code> di luar container sekali pakai.</li>
+</ul>
+
+<h2>Rahasia</h2>
+<ul class="check">
+<li>Nol credential di MEMORY.md / USER.md / SOUL.md / SKILL.md. Cek: <code>grep -ri "key\|token" ~/.hermes/memories ~/.hermes/SOUL.md</code>.</li>
+<li>config.yaml cuma nyimpen <code>${VAR}</code>, nilainya di .env.</li>
+<li><code>~/.xurl</code> diisi manual, gak pernah masuk chat.</li>
+<li>Token yang sempet kerekam di konten udah dirotasi.</li>
+</ul>
+
+<h2>Koneksi</h2>
+<ul class="check">
+<li>Telegram: token di .env, <code>TELEGRAM_ALLOWED_USERS</code> cuma ID lo, gateway jalan sebagai service.</li>
+<li>Pairing dipake buat nambah orang, bukan <code>ALLOW_ALL_USERS</code>.</li>
+<li>X: x_search buat riset, xurl buat aksi, dan tiap aksi tulis lewat draft + approve dulu.</li>
+<li><code>gateway.log</code> dicek seminggu sekali.</li>
+</ul>
+
+<h2>Config lengkap buat "asisten pribadi yang aman"</h2>
+<p>Gabungan dari semua halaman. Copy, sesuaiin path.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/config.yaml</span></div><pre><span class="k">approvals:</span>
+  mode: smart
+  timeout: 300
+  cron_mode: deny
+  single_query_mode: deny
+  unattended_mode: deny
+  deny:
+    - "git push --force*"
+    - "*rm -rf ~*"
+    - "curl * | *sh*"
+    - "*cat*.env*"
+    - "*xurl* --verbose*"
+
+<span class="k">terminal:</span>
+  backend: docker
+  cwd: /home/bima/projects
+
+<span class="k">memory:</span>
+  memory_enabled: true
+  user_profile_enabled: true
+  write_approval: true
+
+<span class="k">security:</span>
+  redact_secrets: true</pre></div>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/.env</span></div><pre>OPENROUTER_API_KEY=...
+TELEGRAM_BOT_TOKEN=...
+TELEGRAM_ALLOWED_USERS=123456789
+XAI_API_KEY=...
+HERMES_WRITE_SAFE_ROOT=/home/bima/projects</pre></div>
+
+<h2>Urutan konten yang enak diikutin</h2>
+<ol>
+<li>Install + ngobrol pertama (hook: "5 menit jadi")</li>
+<li>Ganti SOUL.md, tunjukin before/after gaya ngomongnya</li>
+<li>Bikin satu skill, panggil pake slash</li>
+<li>Demo memory: bilang sesuatu, <code>/new</code>, dia masih inget</li>
+<li>Demo pagar: suruh <code>rm -rf</code>, tunjukin dia nolak</li>
+<li>Konek Telegram dari HP</li>
+<li>Posting ke X lewat draft → approve</li>
+<li>Tutup pake checklist ini</li>
+</ol>
+<div class="note tip"><p>Hermes update-nya cepet. Kalau ada command yang beda sama di sini, sumber kebenarannya <a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener">docs resmi</a>. Semua yang ditulis di sini diambil dari sana per Oktober 2026.</p></div>
+<div class="pager"><a href="../x/"><span>← sebelumnya</span>08 Konek X / Twitter</a><span></span></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="../assets/main.js"></script>
+</body>
+</html>

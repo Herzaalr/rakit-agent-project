@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>Memory & AGENTS.md · Rakit Agent pake Hermes</title>
+<meta name="description" content="Cara kerja memory Hermes Agent (MEMORY.md, USER.md), write approval, dan AGENTS.md per project.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="../assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="../"><span class="n">00</span>Home</a><a href="../setup/"><span class="n">01</span>Install & setup</a><a href="../soul/"><span class="n">02</span>SOUL.md</a><a href="../skills/"><span class="n">03</span>SKILL.md</a><a href="../memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="../boundaries/"><span class="n">05</span>Boundaries</a><a href="../secrets/"><span class="n">06</span>Rahasia & credential</a><a href="../telegram/"><span class="n">07</span>Konek Telegram</a><a href="../x/"><span class="n">08</span>Konek X / Twitter</a><a href="../checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main><div class="doc">
+<div class="kicker">step 04</div>
+<h1>Memory & AGENTS.md</h1>
+<p class="lead">Memory itu yang bikin dia inget lo antar sesi. Tapi memory di Hermes sengaja <strong>dibatesin</strong>: kecil, dikurasi, dan bisa lo gate.</p>
+
+<h2>Dua file, dua tujuan</h2>
+<table class="tbl"><tr><th>File</th><th>Isi</th><th>Limit</th></tr>
+<tr><td><code>memories/MEMORY.md</code></td><td>Catatan agent: fakta environment, konvensi project, quirk tool, pelajaran</td><td>2.200 karakter (~800 token), kira-kira 8-15 entri</td></tr>
+<tr><td><code>memories/USER.md</code></td><td>Profil lo: nama, role, preferensi, gaya komunikasi</td><td>1.375 karakter (~500 token), kira-kira 5-10 entri</td></tr>
+</table>
+<p>Dua-duanya <strong>ditulis si agent</strong> lewat tool <code>memory</code> (aksi: <code>add</code>, <code>replace</code>, <code>remove</code>). Lo gak perlu nulis manual. Mau dia inget sesuatu? Bilang aja:</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">chat</span></div><pre><span class="p">&gt; </span>inget ya, gw lebih suka jawaban pendek dan gw di zona WIB
+<span class="c"># agent manggil memory(add, target=user, ...) → kesimpen ke USER.md</span></pre></div>
+<div class="note warn"><p>Memory cuma kesimpen kalau model <strong>beneran manggil tool <code>memory</code></strong>. Kalimat "oke udah gw inget" doang itu cuma teks. Cek dengan <code>cat ~/.hermes/memories/MEMORY.md</code> atau <code>hermes journey list</code>.</p></div>
+
+<h2>"Kok dia lupa yang barusan gw bilang?"</h2>
+<p>Memory di-inject ke system prompt sebagai <strong>snapshot beku</strong> pas sesi mulai. Kalau agent nyimpen sesuatu di tengah sesi, ke disk-nya langsung, tapi di system prompt baru muncul di sesi berikutnya. Sengaja, biar prefix cache LLM gak rusak. Jadi: <code>/new</code> kalau mau "refresh".</p>
+<p>Konsekuensinya buat bot Telegram yang sesinya nyambung terus: loop belajarnya gak jalan sampai sesi direset. Set reset sesi berkala (ada di config gateway) kalau mau memory-nya kepake.</p>
+
+<h2>Gating: lo approve dulu sebelum dia nulis memory</h2>
+<p>Ini boundary penting. Default-nya agent boleh nulis memory bebas. Buat agent yang jalan unattended (Telegram, cron), nyalain approval:</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/config.yaml</span></div><pre><span class="k">memory:</span>
+  memory_enabled: true
+  user_profile_enabled: true
+  memory_char_limit: 2200
+  user_char_limit: 1375
+  write_approval: true     <span class="c"># tulisan di-stage, lo review dulu</span></pre></div>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">chat / CLI</span></div><pre><span class="p">&gt; </span>/memory pending          <span class="c"># liat antrian</span>
+<span class="p">&gt; </span>/memory approve &lt;id&gt;
+<span class="p">&gt; </span>/memory reject &lt;id&gt;
+<span class="p">&gt; </span>/memory approval on|off  <span class="c"># toggle runtime</span>
+
+<span class="p">$ </span>hermes journey list      <span class="c"># timeline semua yang dia pelajarin (memory + skill)</span>
+<span class="p">$ </span>hermes journey edit
+<span class="p">$ </span>hermes journey delete</pre></div>
+
+<h2>Matiin memory total</h2>
+<p>Buat agent sekali pakai atau demo, set dua-duanya <code>false</code>: tool <code>memory</code> ilang dari schema dan guidance-nya ilang dari prompt. Kalau pake provider eksternal (Hindsight, Mem0, Honcho) itu gak kena; buat matiin semuanya sekalian, taruh <code>memory</code> di <code>agent.disabled_toolsets</code>.</p>
+
+<h2>Yang BUKAN memory</h2>
+<ul>
+<li>Variabel di <code>.env</code>: itu credential, bukan memory. Lebih lengkap di halaman <a href="../secrets/">Rahasia & credential</a>.</li>
+<li>Fakta yang lo sebut sambil lalu tanpa minta disimpen.</li>
+<li>Prosedur panjang: itu <a href="../skills/">skill</a>.</li>
+</ul>
+<p>Memory juga di-scan buat pola injection/exfiltration dan Unicode tak terlihat sebelum diterima. Duplikat otomatis ditolak. Kalau penuh, tool balikin error (gak diem-diem buang entri lama): agent harus <code>remove</code>/<code>replace</code> yang basi dulu.</p>
+
+<h2>AGENTS.md: aturan per-project</h2>
+<p>Kalau SOUL.md global, AGENTS.md itu lokal di folder project. Di-load pas startup dari working directory, dan nested AGENTS.md di subfolder ketemu progresif pas agent masuk ke sana.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">./AGENTS.md</span></div><pre><span class="k"># Project: landing-page-kopi</span>
+
+- Framework: Astro. Jangan tambah React.
+- Jalanin dev: `npm run dev` (port 4321)
+- Test: `npm test` sebelum commit, selalu.
+- Jangan edit `src/content/legal/*` tanpa konfirmasi.
+- Commit message pake bahasa Inggris, imperative.
+- Deploy cuma lewat `npm run deploy`, jangan push langsung ke main.</pre></div>
+<p>Prioritas context file (cuma <strong>satu</strong> tipe yang di-load per sesi, first match menang): <code>.hermes.md</code> → <code>AGENTS.md</code> → <code>CLAUDE.md</code> → <code>.cursorrules</code>. Discovery jalan naik sampai git root. SOUL.md selalu di-load terpisah, gak ikut rantai ini.</p>
+<div class="note danger"><p>AGENTS.md dari repo orang lain = teks asing masuk prompt. Hermes nge-scan dan <strong>nge-block</strong> file project yang ketrigger pola injection (beda sama SOUL.md yang cuma warning). Tetep: baca dulu AGENTS.md sebelum nge-clone repo random terus nyuruh agent kerja di situ.</p></div>
+
+<h2>Background review (belajar otomatis)</h2>
+<p>Abis sebuah turn, Hermes bisa jalanin review di background buat ngusulin memory/skill baru. Bisa dirutein ke model lebih murah, ditunda, atau dimatiin. Digabung sama <code>write_approval</code>, lo dapet loop belajar yang tetep lo kontrol.</p>
+<div class="pager"><a href="../skills/"><span>← sebelumnya</span>03 SKILL.md</a><a class="next" href="../boundaries/"><span>selanjutnya →</span>05 Boundaries</a></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="../assets/main.js"></script>
+</body>
+</html>

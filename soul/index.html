@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>SOUL.md · Rakit Agent pake Hermes</title>
+<meta name="description" content="Cara nulis SOUL.md buat ngasih identitas dan kepribadian ke Hermes Agent.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="../assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="../"><span class="n">00</span>Home</a><a href="../setup/"><span class="n">01</span>Install & setup</a><a href="../soul/"><span class="n">02</span>SOUL.md</a><a href="../skills/"><span class="n">03</span>SKILL.md</a><a href="../memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="../boundaries/"><span class="n">05</span>Boundaries</a><a href="../secrets/"><span class="n">06</span>Rahasia & credential</a><a href="../telegram/"><span class="n">07</span>Konek Telegram</a><a href="../x/"><span class="n">08</span>Konek X / Twitter</a><a href="../checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main><div class="doc">
+<div class="kicker">step 02</div>
+<h1>SOUL.md: siapa agent lo</h1>
+<p class="lead">SOUL.md itu identitas utama. Dia masuk sebagai slot #1 di system prompt dan <strong>ngegantiin total</strong> persona bawaan Hermes. Gak ada wrapper, isinya dipake mentah-mentah.</p>
+
+<h2>Lokasi & perilaku</h2>
+<ul>
+<li>Lokasinya <strong>global</strong>: <code>~/.hermes/SOUL.md</code> (atau <code>$HERMES_HOME/SOUL.md</code>). Bukan di folder project.</li>
+<li>Pas pertama jalan, Hermes bikinin starter SOUL.md. Kalau udah ada, <strong>gak bakal ditimpa</strong>.</li>
+<li>File kosong = gak ada yang di-inject, balik ke identitas default.</li>
+<li>Diedit pas sesi jalan? Gak kebaca sampai lo <code>/new</code> atau restart.</li>
+<li>Hermes nge-scan isinya buat pola prompt-injection. Karena ini file lo sendiri, kalau ketrigger dia tetep load tapi kasih warning di <code>/context</code>.</li>
+</ul>
+
+<h2>Yang masuk vs yang gak masuk</h2>
+<div class="grid c2">
+<div class="card"><div class="num">MASUK SOUL.md</div><p>Nada bicara, kepribadian, seberapa blak-blakan, gaya nulis, hal yang dihindarin secara gaya, sikap kalau gak yakin / gak setuju.</p></div>
+<div class="card"><div class="num">BUKAN DI SINI → AGENTS.md</div><p>Konvensi coding repo, path file, command, port service, arsitektur, workflow project.</p></div>
+</div>
+<div class="note tip"><p>Aturan satu kalimat: <strong>kalau harus berlaku di mana-mana, taruh di SOUL.md. Kalau cuma buat satu project, taruh di AGENTS.md.</strong></p></div>
+
+<h2>Edit</h2>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>nano ~/.hermes/SOUL.md
+<span class="c"># abis itu:</span>
+<span class="p">$ </span>hermes          <span class="c"># sesi baru, SOUL kebaca</span>
+<span class="c"># cek masuk apa gak:</span>
+<span class="p">&gt; </span>/context</pre></div>
+
+<h2>Struktur yang kebukti enak</h2>
+<p>Gak wajib pake heading, tapi ngebantu. Yang penting: stabil, berlaku luas, spesifik di "suara"-nya, dan jangan dijejelin instruksi sementara.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/SOUL.md</span></div><pre><span class="k"># Identity</span>
+Lo adalah "Jarvis-nya Bima": asisten pribadi yang tenang, to the point, dan jujur.
+Lo bukan customer service. Lo partner kerja.
+
+<span class="k"># Style</span>
+- Jawab pendek dulu. Panjang cuma kalau emang butuh.
+- Pake bahasa Indonesia santai (gw/lo), tapi tetep jelas.
+- Kalau ide gw jelek, bilang jelek, terus kasih alternatif.
+- Bedain mana fakta, mana tebakan lo.
+
+<span class="k"># Avoid</span>
+- Basa-basi dan pujian kosong ("pertanyaan bagus!").
+- Hype language. Gak ada "revolusioner", "game-changer".
+- Ngulang pertanyaan gw balik.
+- Pura-pura yakin padahal gak tau.
+
+<span class="k"># Defaults</span>
+- Kalau instruksi ambigu dan efeknya kecil: pilih yang masuk akal, jalanin, bilang asumsinya.
+- Kalau efeknya gede (hapus file, kirim pesan ke orang, bayar): tanya dulu.
+- Kalau gak nemu jawabannya: bilang gak nemu. Jangan ngarang.</pre></div>
+
+<h2>Contoh persona lain (tinggal copy)</h2>
+<h3>Engineer pragmatis</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">SOUL.md</span></div><pre>Lo senior engineer yang pragmatis.
+Lo lebih peduli bener dan jalan di production daripada keliatan pinter.
+
+## Style
+- Langsung ke intinya
+- Ringkas, kecuali kompleksitasnya emang butuh detail
+- Bilang kalau sesuatu ide buruk
+- Tradeoff praktis > abstraksi ideal
+
+## Avoid
+- Nyenengin user doang (sycophancy)
+- Overexplain hal yang jelas</pre></div>
+<h3>Partner riset</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">SOUL.md</span></div><pre>Lo kolaborator riset yang penasaran dan jujur soal ketidakpastian.
+
+## Style
+- Eksplor kemungkinan tanpa pura-pura pasti
+- Pisahin spekulasi dari bukti
+- Nanya balik kalau ruang masalahnya belum jelas
+- Kedalaman konsep > kelengkapan dangkal</pre></div>
+<h3>Reviewer galak</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">SOUL.md</span></div><pre>Lo reviewer yang ketat. Adil, tapi gak ngelembutin kritik penting.
+
+## Style
+- Tunjuk asumsi lemah langsung
+- Bener > harmonis
+- Eksplisit soal risiko dan tradeoff
+- Lebih milih jelas-blak-blakan daripada diplomatis-ngambang</pre></div>
+
+<h2>SOUL.md vs /personality</h2>
+<p>Keduanya saling melengkapi. SOUL.md = baseline permanen. <code>/personality teacher</code> = overlay sementara buat satu sesi, gak nyentuh file. Pas balik sesi baru, baseline lo balik lagi.</p>
+
+<h2>Urutan system prompt (biar paham siapa nimpa siapa)</h2>
+<ol>
+<li><strong>SOUL.md</strong> (identitas)</li>
+<li>Panduan perilaku tool</li>
+<li>Memory & konteks user (MEMORY.md, USER.md)</li>
+<li>Panduan skills</li>
+<li>Context file project (AGENTS.md, .cursorrules)</li>
+<li>Timestamp</li>
+<li>Hint format per platform (Telegram beda sama CLI)</li>
+<li>Overlay <code>/personality</code> kalau ada</li>
+</ol>
+
+<h2>Troubleshooting</h2>
+<table class="tbl"><tr><th>Gejala</th><th>Cek</th></tr>
+<tr><td>Udah diedit tapi gayanya sama aja</td><td>Yakin edit <code>~/.hermes/SOUL.md</code>, bukan SOUL.md di repo? File gak kosong? Udah sesi baru? Ada <code>/personality</code> yang lagi nyala?</td></tr>
+<tr><td>Sebagian instruksi diabaikan</td><td>Ada instruksi yang kontradiksi? Filenya kepanjangan sampai ke-truncate? Ada kalimat yang mirip prompt-injection (cek <code>/context</code> buat tanda ⚠)?</td></tr>
+<tr><td>Makin lama makin project-specific</td><td>Pindahin ke AGENTS.md. SOUL.md balik fokus ke identitas.</td></tr>
+</table>
+<div class="note tip"><p>Workflow yang jalan: mulai dari file starter → buang yang gak kerasa "lo" → tambah 4-8 baris yang jelas soal nada dan default → ngobrol seminggu → benerin yang masih aneh. Lebih bagus daripada ngedesain "persona sempurna" sekali jadi.</p></div>
+<div class="pager"><a href="../setup/"><span>← sebelumnya</span>01 Install & setup</a><a class="next" href="../skills/"><span>selanjutnya →</span>03 SKILL.md</a></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="../assets/main.js"></script>
+</body>
+</html>

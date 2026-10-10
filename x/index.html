@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>Konek X / Twitter · Rakit Agent pake Hermes</title>
+<meta name="description" content="Cara konek Hermes Agent ke X/Twitter: x_search buat riset, skill xurl buat posting, plus boundaries-nya.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="../assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="../"><span class="n">00</span>Home</a><a href="../setup/"><span class="n">01</span>Install & setup</a><a href="../soul/"><span class="n">02</span>SOUL.md</a><a href="../skills/"><span class="n">03</span>SKILL.md</a><a href="../memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="../boundaries/"><span class="n">05</span>Boundaries</a><a href="../secrets/"><span class="n">06</span>Rahasia & credential</a><a href="../telegram/"><span class="n">07</span>Konek Telegram</a><a href="../x/"><span class="n">08</span>Konek X / Twitter</a><a href="../checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main><div class="doc">
+<div class="kicker">step 08</div>
+<h1>Konek ke X / Twitter</h1>
+<p class="lead">Ada dua jalur yang beda fungsinya: <strong>x_search</strong> buat baca/riset (read-only, lewat xAI), dan <strong>skill xurl</strong> buat aksi di akun lo (post, reply, DM, timeline). Jangan ketuker.</p>
+
+<table class="tbl"><tr><th></th><th>x_search</th><th>xurl (skill)</th></tr>
+<tr><td>Buat apa</td><td>Riset publik: diskusi, reaksi, profil, thread. Hasilnya udah disintesis + sitasi.</td><td>Aksi akun: post, reply, quote, like, repost, DM, upload media, timeline, mentions, raw API v2.</td></tr>
+<tr><td>Butuh</td><td>Credential xAI (<code>XAI_API_KEY</code> atau OAuth)</td><td>App di developer.x.com + CLI xurl + OAuth 2.0 PKCE</td></tr>
+<tr><td>Bisa posting?</td><td>Nggak</td><td>Iya</td></tr>
+</table>
+
+<h2>Jalur 1: x_search (baca doang)</h2>
+<p>Tool-nya auto-nyala kalau credential xAI ada. Grok yang nyari di server mereka.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/.env</span></div><pre>XAI_API_KEY=xai-...</pre></div>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">chat</span></div><pre><span class="p">&gt; </span>cari di X: orang pada ngomongin apa soal Hermes Agent minggu ini, kasih link post-nya</pre></div>
+<p>Gak mau? Matiin di <code>hermes tools</code> → Search → x_search.</p>
+
+<h2>Jalur 2: xurl (posting & aksi)</h2>
+<p><code>xurl</code> itu CLI resmi dari tim X developer platform. Skill-nya bundled di Hermes (<code>skills/social-media/xurl</code>) tapi gak aktif default. Semua output JSON ke stdout.</p>
+<ol class="steps">
+<li><h3>Install xurl di mesin lo</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="c"># salah satu:</span>
+<span class="p">$ </span>brew install xurl
+<span class="p">$ </span>npm install -g xurl
+<span class="p">$ </span>go install github.com/xdevplatform/xurl@latest</pre></div></li>
+<li><h3>Bikin app di developer.x.com</h3>
+<p>Set redirect URI ke <code>http://localhost:8080/callback</code>, ambil Client ID & Client Secret. Catatan: akses X API buat posting biasanya butuh plan berbayar (kredit minimum sekitar $5).</p></li>
+<li><h3>Daftarin credential & login (DI LUAR sesi agent)</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>xurl auth app --name myapp --client-id &lt;ID&gt; --client-secret &lt;SECRET&gt;
+<span class="p">$ </span>xurl auth oauth2      <span class="c"># buka browser, login, token kesimpen ke ~/.xurl (auto-refresh)</span></pre></div>
+<div class="note danger"><p>Langkah ini lo yang jalanin sendiri, bukan agent. <code>~/.xurl</code> itu file credential. Agent <strong>gak boleh</strong> baca/print/kirim isinya, dan lo jangan paste credential ke chat. Kalau Hermes jalan di Docker, HOME-nya <code>/opt/data/home</code>, jadi file-nya di <code>/opt/data/home/.xurl</code>.</p></div></li>
+<li><h3>Aktifin skill-nya di Hermes</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes skills install official/social-media/xurl
+<span class="p">$ </span>hermes skills list | grep xurl</pre></div></li>
+<li><h3>Pake</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">chat</span></div><pre><span class="p">&gt; </span>/xurl post "tes dari agent gw. kalau lo baca ini berarti jalan."
+<span class="p">&gt; </span>/xurl cari 10 post terbaru soal "hermes agent", terus reply yang paling relevan pake tone SOUL lo
+<span class="p">&gt; </span>/xurl liat mentions gw hari ini</pre></div>
+<p>Di belakang, agent manggil command kayak <code>xurl post "..."</code>, <code>xurl reply &lt;POST_ID&gt; "..."</code>, <code>xurl search "..."</code>, <code>xurl timeline</code>. POST_ID bisa URL penuh (<code>https://x.com/user/status/123</code>), dia ekstrak sendiri.</p></li>
+</ol>
+
+<h2>Boundaries khusus X (ini yang bikin gak semena-mena)</h2>
+<p>Agent yang bisa posting atas nama lo = risiko reputasi. Pasang pagar berlapis:</p>
+<h3>1. Di SOUL.md / AGENTS.md</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">SOUL.md</span></div><pre><span class="k"># Aturan X</span>
+- Sebelum post/reply/DM apapun: tampilin draft, tunggu gw bilang "post".
+- Jangan pernah like/repost/follow massal.
+- Jangan reply ke akun yang lagi berantem.
+- Jangan nyebut harga, janji, atau klaim soal orang/brand tanpa sumber.
+- Satu aksi per permintaan. Gak ada loop "post 20 tweet".</pre></div>
+<h3>2. Deny rule buat jalur berbahaya</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/config.yaml</span></div><pre><span class="k">approvals:</span>
+  deny:
+    - "*xurl* --verbose*"       <span class="c"># log verbose bisa bocorin token</span>
+    - "*cat*~/.xurl*"
+    - "*xurl dm*"               <span class="c"># kalau lo gak mau agent bisa DM orang</span>
+    - "*xurl* delete*"</pre></div>
+<h3>3. Approval mode manual buat aksi tulis</h3>
+<p>Set <code>approvals.mode: manual</code> di profile yang pegang X, biar tiap <code>xurl post</code> lewat lo dulu. Atau pisahin: profile "riset" cuma punya x_search, profile "publish" punya xurl dan cuma lo jalanin pas lo di depan layar.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes profile create publish
+<span class="p">$ </span>hermes -p publish    <span class="c"># xurl cuma kepasang di sini</span></pre></div>
+<h3>4. Verifikasi</h3>
+<p>Satu-satunya bukti aksi beneran kejadian adalah output JSON dari xurl / respons X API. Kalau agent bilang "udah gw post" tanpa output itu, belum tentu kepost.</p>
+
+<h2>Alternatif: plugin pihak ketiga</h2>
+<p>Ada plugin komunitas kayak <em>hermes-tweet</em> (Xquik) yang ngasih tool <code>tweet_read</code> / <code>tweet_action</code> lewat API mereka, dengan <code>tweet_action</code> dimatiin by default. Patut dicek kalau gak mau ngurus app X sendiri, tapi itu bukan resmi dari X atau Nous: audit dulu.</p>
+<div class="pager"><a href="../telegram/"><span>← sebelumnya</span>07 Konek Telegram</a><a class="next" href="../checklist/"><span>selanjutnya →</span>09 Checklist final</a></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="../assets/main.js"></script>
+</body>
+</html>

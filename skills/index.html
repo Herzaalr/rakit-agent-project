@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>SKILL.md · Rakit Agent pake Hermes</title>
+<meta name="description" content="Cara bikin, install, dan ngatur skill (SKILL.md) di Hermes Agent.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="../assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="../"><span class="n">00</span>Home</a><a href="../setup/"><span class="n">01</span>Install & setup</a><a href="../soul/"><span class="n">02</span>SOUL.md</a><a href="../skills/"><span class="n">03</span>SKILL.md</a><a href="../memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="../boundaries/"><span class="n">05</span>Boundaries</a><a href="../secrets/"><span class="n">06</span>Rahasia & credential</a><a href="../telegram/"><span class="n">07</span>Konek Telegram</a><a href="../x/"><span class="n">08</span>Konek X / Twitter</a><a href="../checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main><div class="doc">
+<div class="kicker">step 03</div>
+<h1>SKILL.md: ajarin dia cara ngerjain sesuatu</h1>
+<p class="lead">Skill itu dokumen "prosedur" yang cuma di-load pas relevan. Nol token sampai dipake. Semua skill tinggal di <code>~/.hermes/skills/</code>, dan tiap skill otomatis jadi slash command.</p>
+
+<h2>Skill vs Memory (jangan ketuker)</h2>
+<table class="tbl"><tr><th></th><th>Skill</th><th>Memory</th></tr>
+<tr><td>Isi</td><td>Prosedural: <em>cara</em> ngerjain</td><td>Faktual: <em>apa</em> yang bener</td></tr>
+<tr><td>Kapan di-load</td><td>On demand, kalau relevan</td><td>Tiap sesi, otomatis</td></tr>
+<tr><td>Ukuran</td><td>Boleh panjang (ratusan baris)</td><td>Harus pendek (limit karakter)</td></tr>
+<tr><td>Biaya token</td><td>Nol sampai dipake</td><td>Kecil tapi konstan</td></tr>
+<tr><td>Contoh</td><td>"Cara deploy ke Fly.io"</td><td>"User suka dark mode, zona WIB"</td></tr>
+</table>
+<div class="note tip"><p>Rule of thumb: kalau cocoknya di dokumen referensi → skill. Kalau cocoknya di sticky note → memory.</p></div>
+
+<h2>Liat & pake skill bawaan</h2>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">&gt; </span>/skills                   <span class="c"># di dalam chat</span>
+<span class="p">$ </span>hermes skills list        <span class="c"># dari CLI</span>
+<span class="p">&gt; </span>/skills search docker
+
+<span class="c"># pake: nama skill = slash command</span>
+<span class="p">&gt; </span>/plan Desain REST API buat app todo
+<span class="p">&gt; </span>/github-pr-workflow Bikin PR buat refactor auth</pre></div>
+<p>Cara load-nya hemat token (progressive disclosure): <code>skills_list()</code> ~3k token di awal sesi → <code>skill_view(nama)</code> pas butuh → <code>skill_view(nama, file)</code> buat file referensi di dalamnya.</p>
+
+<h2>Install dari hub / URL</h2>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes skills browse                               <span class="c"># skill resmi opsional</span>
+<span class="p">$ </span>hermes skills install official/research/arxiv
+<span class="p">$ </span>hermes skills install https://example.com/SKILL.md --name my-skill
+<span class="p">$ </span>hermes skills inspect &lt;nama&gt;                        <span class="c"># liat isinya dulu sebelum install</span>
+<span class="p">$ </span>hermes skills audit                                <span class="c"># scan keamanan skill yang kepasang</span></pre></div>
+<div class="note warn"><p>Skill dari internet = teks yang bakal masuk ke prompt agent lo. Itu vektor prompt-injection paling gampang. <strong>Selalu <code>inspect</code> dulu, dan jalanin <code>audit</code></strong>. Install punya scan keamanan bawaan, tapi mata lo tetep lapisan terakhir.</p></div>
+<p>Skill baru aktif di sesi berikutnya. Mau langsung? <code>/reset</code>, atau tambah <code>--now</code> pas install (bakal invalidasi prompt cache, token-nya naik sekali).</p>
+
+<h2>Bikin skill sendiri (5 menit)</h2>
+<ol class="steps">
+<li><h3>Bikin foldernya</h3><div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>mkdir -p ~/.hermes/skills/konten/thread-x</pre></div></li>
+<li><h3>Tulis SKILL.md</h3><div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">~/.hermes/skills/konten/thread-x/SKILL.md</span></div><pre><span class="s">---
+name: thread-x
+description: Bikin thread X dari satu ide, 5-8 tweet, gaya santai, hook di tweet pertama
+version: 1.0.0
+metadata:
+  hermes:
+    tags: [konten, twitter, writing]
+    category: konten
+---</span>
+
+<span class="k"># Thread X</span>
+
+<span class="k">## When to Use</span>
+Pas user minta "bikin thread" / "jadiin thread" / "threadin ini".
+
+<span class="k">## Procedure</span>
+1. Tanya target audiens kalau belum jelas (1 pertanyaan aja).
+2. Tweet 1 = hook. Maks 2 baris. Gak boleh mulai pake "Thread 🧵".
+3. Tweet 2-6 = satu poin per tweet, &lt; 280 karakter, ada contoh konkret.
+4. Tweet terakhir = rangkuman + CTA halus.
+5. Output: numbering "1/", "2/", dst. Gak usah hashtag.
+
+<span class="k">## Pitfalls</span>
+- Kalimat kepanjangan → pecah. Cek karakter per tweet.
+- Jangan nambahin fakta yang gak ada di sumber user.
+
+<span class="k">## Verification</span>
+Semua tweet &lt; 280 karakter, hook gak klise, gak ada emoji spam.</pre></div></li>
+<li><h3>Tambah file pendukung (opsional)</h3><div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">tree</span></div><pre>thread-x/
+├── SKILL.md
+├── references/
+│   └── contoh-hook.md     <span class="c"># dibaca agent kalau perlu</span>
+├── templates/
+│   └── thread.md
+└── scripts/
+    └── hitung-karakter.sh   <span class="c"># bisa dieksekusi agent</span></pre></div><p>Referensiin di SKILL.md: <code>Buat contoh hook, load: skill_view("thread-x", "references/contoh-hook.md")</code></p></li>
+<li><h3>Tes</h3><div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes chat -q "/thread-x jadiin thread: kenapa gw pindah dari Notion ke Obsidian"</pre></div><p>Gak perlu registrasi. Taruh di folder, langsung hidup.</p></li>
+</ol>
+
+<h2>Skill yang butuh config (API key, dll)</h2>
+<p>Skill bisa minta config lewat frontmatter. Pas pertama di-load, Hermes nanya nilainya dan nyimpen ke <code>config.yaml</code> di <code>skills.config.*</code>.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">SKILL.md (frontmatter)</span></div><pre><span class="s">metadata:
+  hermes:
+    config:
+      - key: tenor.api_key
+        description: "Tenor API key buat cari GIF"
+        prompt: "Masukin Tenor API key"
+        url: "https://developers.google.com/tenor/guides/quickstart"</span></pre></div>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes skills config gif-search
+<span class="p">$ </span>hermes config get skills.config --json</pre></div>
+
+<h2>Batasin skill per platform</h2>
+<p>Ini bagian dari boundaries juga: skill coding gak perlu ada di Telegram. Buka TUI-nya dan matiin per platform:</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes skills      <span class="c"># TUI interaktif: enable/disable per CLI, Telegram, Discord, ...</span></pre></div>
+
+<h2>Biarin agent bikin skill sendiri</h2>
+<p>Abis nyelesaiin task ribet, Hermes sering nawarin "mau gw simpen jadi skill?". Bilang iya: skill buatan agent biasanya nangkep pitfalls yang bener-bener kejadian. Dia pake tool <code>skill_manage</code>. Kalau lo mau review dulu sebelum kesimpen, nyalain write-approval (liat halaman Memory).</p>
+
+<h2>Tips</h2>
+<ul>
+<li><strong>Fokus.</strong> "Semua DevOps" = terlalu luas. "Deploy app Python ke Fly.io" = pas.</li>
+<li><strong>Pake kategori</strong> (subfolder): <code>skills/konten/</code>, <code>skills/devops/</code>.</li>
+<li><strong>Update kalau basi.</strong> Kena masalah yang gak ada di skill? Suruh Hermes update skill-nya.</li>
+</ul>
+<div class="pager"><a href="../soul/"><span>← sebelumnya</span>02 SOUL.md</a><a class="next" href="../memory/"><span>selanjutnya →</span>04 Memory & AGENTS.md</a></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="../assets/main.js"></script>
+</body>
+</html>

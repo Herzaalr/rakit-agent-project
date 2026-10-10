@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>Home · Rakit Agent pake Hermes</title>
+<meta name="description" content="Panduan lengkap rakit AI agent pake Hermes: SOUL.md, SKILL.md, memory, boundaries, Telegram, X.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="./assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="./"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="./"><span class="n">00</span>Home</a><a href="./setup/"><span class="n">01</span>Install & setup</a><a href="./soul/"><span class="n">02</span>SOUL.md</a><a href="./skills/"><span class="n">03</span>SKILL.md</a><a href="./memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="./boundaries/"><span class="n">05</span>Boundaries</a><a href="./secrets/"><span class="n">06</span>Rahasia & credential</a><a href="./telegram/"><span class="n">07</span>Konek Telegram</a><a href="./x/"><span class="n">08</span>Konek X / Twitter</a><a href="./checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main>
+<div class="hero">
+<div class="kicker">cat README.md</div>
+<h1>Rakit AI agent lo sendiri pake <em>Hermes</em>.<br>Lengkap, gak semena-mena.</h1>
+<p>Panduan step-by-step dari nol: install, kasih kepribadian (SOUL.md), kasih skill (SKILL.md), set memory, pasang pagar biar agent-nya gak ngaco, simpen rahasia dengan bener, terus konek ke Telegram dan X.</p>
+<div class="btns"><a class="btn" href="./setup/">Mulai dari install →</a><a class="btn ghost" href="./boundaries/">Langsung ke boundaries</a></div>
+</div>
+
+<div class="doc">
+<h2 style="border:0;margin-top:0;padding-top:0">Hermes itu apa sih?</h2>
+<p><strong>Hermes Agent</strong> itu agent open-source dari Nous Research yang jalan di terminal lo. Dia bisa pegang shell, baca/tulis file, punya memory yang nempel antar sesi, belajar skill sendiri, bisa dijadiin bot Telegram/Discord/WhatsApp, dan bisa dijadwalin (cron). Yang bikin dia enak: hampir semua "otak"-nya cuma file markdown di <code>~/.hermes/</code>. Jadi lo bisa ngatur semuanya pake text editor.</p>
+
+<h3>Anatomi folder ~/.hermes/</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">tree ~/.hermes</span></div><pre class="tree"><span class="d">~/.hermes/</span>
+├── <span class="f">config.yaml</span>     <span class="c"># setting non-rahasia: model, terminal, memory, toolsets</span>
+├── <span class="f">.env</span>            <span class="c"># API key, bot token, password  ← RAHASIA DI SINI</span>
+├── <span class="f">auth.json</span>       <span class="c"># credential OAuth (Nous Portal, dll)</span>
+├── <span class="f">SOUL.md</span>         <span class="c"># identitas agent, slot #1 di system prompt</span>
+├── <span class="d">memories/</span>       <span class="c"># MEMORY.md + USER.md (ditulis si agent)</span>
+├── <span class="d">skills/</span>         <span class="c"># SKILL.md per skill</span>
+├── <span class="d">cron/</span>           <span class="c"># job terjadwal</span>
+├── <span class="d">sessions/</span>       <span class="c"># sesi gateway (Telegram dll)</span>
+└── <span class="d">logs/</span>           <span class="c"># errors.log, gateway.log (secret auto-redact)</span></pre></div>
+
+<h3>Peta jalan</h3>
+<div class="grid c2">
+<a class="card" href="./setup/"><div class="num">01</div><h3>Install & setup</h3><p>Pasang Hermes, pilih model, ngobrol pertama kali.</p></a>
+<a class="card" href="./soul/"><div class="num">02</div><h3>SOUL.md</h3><p>Siapa agent lo, gimana cara ngomongnya, apa yang dia hindarin.</p></a>
+<a class="card" href="./skills/"><div class="num">03</div><h3>SKILL.md</h3><p>Ajarin cara ngerjain hal spesifik. Bikin sendiri atau install dari hub.</p></a>
+<a class="card" href="./memory/"><div class="num">04</div><h3>Memory & AGENTS.md</h3><p>Apa yang dia inget, apa yang per-project, dan cara gating-nya.</p></a>
+<a class="card" href="./boundaries/"><div class="num">05</div><h3>Boundaries</h3><p>Approval, deny-list, matiin tool, sandbox Docker. Biar gak semena-mena.</p></a>
+<a class="card" href="./secrets/"><div class="num">06</div><h3>Rahasia & credential</h3><p>Kenapa API key gak boleh di memory, dan di mana tempat yang bener.</p></a>
+<a class="card" href="./telegram/"><div class="num">07</div><h3>Konek Telegram</h3><p>BotFather, allowlist user, pairing code, jalanin sebagai service.</p></a>
+<a class="card" href="./x/"><div class="num">08</div><h3>Konek X / Twitter</h3><p>Skill xurl buat posting & baca timeline, plus x_search.</p></a>
+</div>
+
+<h3>Siapa nulis apa?</h3>
+<table class="tbl"><tr><th>File</th><th>Isi</th><th>Yang nulis</th></tr>
+<tr><td><code>SOUL.md</code></td><td>Kepribadian, nada bicara, gaya</td><td>Lo</td></tr>
+<tr><td><code>USER.md</code></td><td>Profil lo: nama, preferensi</td><td>Agent (via tool <code>memory</code>)</td></tr>
+<tr><td><code>MEMORY.md</code></td><td>Catatan si agent: fakta environment, kebiasaan project</td><td>Agent</td></tr>
+<tr><td><code>AGENTS.md</code></td><td>Aturan per-project: command, port, struktur repo</td><td>Lo, di folder project</td></tr>
+<tr><td><code>SKILL.md</code></td><td>Prosedur "cara ngerjain X"</td><td>Lo, agent, atau install dari hub</td></tr>
+<tr><td><code>.env</code></td><td>API key, token, password</td><td>Lo. <strong>Bukan memory.</strong></td></tr>
+</table>
+
+<div class="note tip"><p>Prinsip gampangnya: <strong>SOUL.md = siapa dia</strong>, <strong>USER.md = siapa lo</strong>, <strong>MEMORY.md = yang dia pelajarin</strong>, <strong>AGENTS.md = yang project butuhin</strong>, <strong>.env = rahasia</strong>.</p></div>
+<div class="pager"><span></span><a class="next" href="./setup/"><span>selanjutnya →</span>01 Install & setup</a></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="./assets/main.js"></script>
+</body>
+</html>

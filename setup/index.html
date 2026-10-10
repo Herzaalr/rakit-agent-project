@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="herzaalr">
+<title>Install & setup · Rakit Agent pake Hermes</title>
+<meta name="description" content="Cara install Hermes Agent, pilih model, dan ngobrol pertama kali.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="../assets/theme.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../"><span class="dot"></span>rakit-agent/hermes</a>
+  <button class="menu-btn" type="button">menu ▾</button>
+</div></header>
+<div class="site">
+  <nav class="side"><div class="grp">// panduan</div><a href="../"><span class="n">00</span>Home</a><a href="../setup/"><span class="n">01</span>Install & setup</a><a href="../soul/"><span class="n">02</span>SOUL.md</a><a href="../skills/"><span class="n">03</span>SKILL.md</a><a href="../memory/"><span class="n">04</span>Memory & AGENTS.md</a><a href="../boundaries/"><span class="n">05</span>Boundaries</a><a href="../secrets/"><span class="n">06</span>Rahasia & credential</a><a href="../telegram/"><span class="n">07</span>Konek Telegram</a><a href="../x/"><span class="n">08</span>Konek X / Twitter</a><a href="../checklist/"><span class="n">09</span>Checklist final</a>
+  <div class="grp">// resmi</div><a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener"><span class="n">↗</span>Docs Hermes</a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><span class="n">↗</span>GitHub</a></nav>
+  <main><div class="doc">
+<div class="kicker">step 01</div>
+<h1>Install & setup</h1>
+<p class="lead">Target halaman ini: Hermes kepasang, udah bisa diajak ngobrol di terminal. Sisanya (bot, skill, dll) nyusul.</p>
+
+<h2>1. Install</h2>
+<p>Butuh Linux, macOS, atau WSL2 di Windows. Satu baris:</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash</pre></div>
+<div class="note warn"><p>Iya, ini pipe-to-shell. Lucunya, Hermes sendiri bakal nge-flag pola <code>curl | bash</code> sebagai command berbahaya kalau agent-nya yang jalanin. Buat install awal gapapa, tapi biasain baca script-nya dulu kalau mau paranoid: <code>curl -fsSL ...install.sh -o install.sh && less install.sh</code>.</p></div>
+
+<h2>2. Setup model (otaknya)</h2>
+<p>Ada dua jalur:</p>
+<h3>Jalur cepat: Nous Portal</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes setup --portal   <span class="c"># login, set Nous jadi provider, nyalain Tool Gateway</span></pre></div>
+<p>Satu langganan dapet akses banyak model + tool gateway (web search, image gen, TTS, browser). Gak perlu juggling API key.</p>
+<h3>Jalur manual: pake API key sendiri</h3>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes setup            <span class="c"># wizard lengkap</span>
+<span class="p">$ </span>hermes model            <span class="c"># cuma ganti provider/model</span>
+<span class="p">$ </span>hermes tools            <span class="c"># nyalain/matiin tool</span></pre></div>
+<p>Bisa OpenRouter, Anthropic, OpenAI, atau endpoint lokal (Ollama / vLLM) via custom endpoint. Kalau pake API key, wizard bakal nyimpen ke <code>~/.hermes/.env</code>, bukan ke config.</p>
+
+<h2>3. Ngobrol pertama</h2>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes                     <span class="c"># mode chat interaktif</span>
+<span class="p">$ </span>hermes chat -q "halo, lo siapa?"   <span class="c"># single query, langsung keluar</span></pre></div>
+<p>Kalau dia jawab, selamat, otaknya nyala. Di dalam chat ada slash command penting:</p>
+<table class="tbl"><tr><th>Command</th><th>Fungsi</th></tr>
+<tr><td><code>/context</code></td><td>Liat apa aja yang masuk system prompt (SOUL, memory, skills). Berguna banget buat debug.</td></tr>
+<tr><td><code>/skills</code></td><td>Daftar skill yang kepasang</td></tr>
+<tr><td><code>/personality</code></td><td>Ganti gaya sementara (overlay, bukan edit file)</td></tr>
+<tr><td><code>/new</code> atau <code>/reset</code></td><td>Sesi baru. Perlu kalau abis edit SOUL.md / memory supaya kebaca.</td></tr>
+<tr><td><code>/yolo</code></td><td>Matiin approval berbahaya. <strong>Jangan</strong>, kecuali di container sekali pakai.</td></tr>
+</table>
+
+<h2>4. Kenalan sama config.yaml</h2>
+<p>Semua setting non-rahasia ada di <code>~/.hermes/config.yaml</code>. Urutan prioritas: argumen CLI &gt; config.yaml &gt; .env &gt; default bawaan.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes config get model
+<span class="p">$ </span>hermes config set memory.write_approval true
+<span class="p">$ </span>hermes config set OPENROUTER_API_KEY sk-...   <span class="c"># key otomatis dirutein ke .env, bukan config.yaml</span></pre></div>
+
+<h2>5. (Opsional) Profile: beberapa agent sekaligus</h2>
+<p>Mau satu agent buat coding, satu buat bot Telegram pribadi, satu buat riset? Pake profile. Tiap profile = folder <code>~/.hermes/profiles/&lt;nama&gt;/</code> sendiri dengan config, .env, SOUL.md, memory, dan skill terpisah. Jadi kepribadian dan rahasia gak kecampur.</p>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span class="f">bash</span></div><pre><span class="p">$ </span>hermes profile create riset
+<span class="p">$ </span>hermes -p riset            <span class="c"># jalanin pake profile riset</span>
+<span class="p">$ </span>hermes profile list</pre></div>
+<div class="note tip"><p>Buat konten, profile ini enak: lo bisa demo "agent galak" vs "agent kalem" cuma dengan ganti <code>-p</code>.</p></div>
+<div class="pager"><a href="../"><span>← sebelumnya</span>00 Home</a><a class="next" href="../soul/"><span>selanjutnya →</span>02 SOUL.md</a></div></div></main>
+</div>
+<footer>rakit-agent/hermes · by <a href="https://github.com/herzaalr" target="_blank" rel="noopener">herzaalr</a> · dibikin buat konten · referensi: docs resmi Hermes Agent (Nous Research) · Hermes update cepet, kalau command beda, cek docs ya</footer>
+<script src="../assets/main.js"></script>
+</body>
+</html>
